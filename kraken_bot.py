@@ -96,7 +96,7 @@ def send_email(receiver, subject, msg, pwd):
 if __name__ == "__main__":
     try:
         pair = "XXBTZEUR"  # Par BTC/EUR
-        to_invest = 6  # Monto en EUR
+        to_invest = 16.66  # Monto en EUR
         print(f"Intentando crear una orden de {to_invest} EUR en el par {pair}...")
 
         order_response, ask_price = create_market_order(pair, to_invest, API_KEY, API_SECRET)
