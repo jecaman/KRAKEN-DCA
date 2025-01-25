@@ -17,7 +17,6 @@ GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD")  # Contraseña o clave de aplicaci�
 
 # Nueva variable: Control de ejecución
 EXECUTE_BOT = os.getenv("EXECUTE_BOT", "false").lower() == "true"
-
 # Verificar si el bot debe ejecutarse
 if not EXECUTE_BOT:
     print("Ejecución del bot desactivada. Saliendo...")
