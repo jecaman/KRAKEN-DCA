@@ -15,6 +15,14 @@ API_SECRET = os.getenv("API_SECRET")
 GMAIL_USER = "jesuscamposmanjon@gmail.com"  # Tu correo de envío
 GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD")  # Contraseña o clave de aplicación del correo
 
+# Nueva variable: Control de ejecución
+EXECUTE_BOT = os.getenv("EXECUTE_BOT", "false").lower() == "true"
+
+# Verificar si el bot debe ejecutarse
+if not EXECUTE_BOT:
+    print("Ejecución del bot desactivada. Saliendo...")
+    exit(0)
+
 # Configuración de reintentos y bloqueo
 MAX_RETRIES = 5  # Número máximo de reintentos
 RETRY_INTERVAL = 3600  # Intervalo entre reintentos en segundos (1 hora)
@@ -119,7 +127,7 @@ if __name__ == "__main__":
         create_lock_file()  # Crear archivo de bloqueo
 
         pair = "XXBTZEUR"  # Par BTC/EUR
-        to_invest = 16  # Monto en EUR
+        to_invest = 21.33  # Monto en EUR
         print(f"Intentando crear una orden de {to_invest} EUR en el par {pair}...")
 
         retry_count = 0
