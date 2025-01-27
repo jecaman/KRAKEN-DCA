@@ -88,6 +88,22 @@ def create_market_order(pair, to_invest, api_key, api_sec):
     resp = kraken_request('/0/private/AddOrder', data, api_key, api_sec)
     return resp, ask_price
 
+# Intentar obtener detalles de la orden con reintentos
+def get_order_details(txid, api_key, api_sec, retries=5, delay=5):
+    data = {
+        'nonce': str(int(1000 * time.time())),
+        'txid': txid
+    }
+    for attempt in range(retries):
+        trade_response = kraken_request('/0/private/QueryOrders', data, api_key, api_sec)
+        print(f"Intento {attempt + 1}/{retries}: {trade_response}")
+        if trade_response["error"]:
+            print(f"Error al consultar la orden: {trade_response['error']}")
+        elif txid in trade_response["result"]:
+            return trade_response["result"][txid]  # Devuelve los detalles si se encuentran
+        time.sleep(delay)  # Espera antes de reintentar
+    return None  # Si no se obtienen detalles después de los reintentos
+
 # Enviar correo electrónico
 def send_email(receiver, subject, msg, pwd):
     sender = GMAIL_USER
@@ -139,32 +155,35 @@ if __name__ == "__main__":
                 txid = order_response['result']['txid'][0]
                 print(f"Orden creada con éxito. TXID: {txid}")
 
-                details_data = {
-                    'nonce': str(int(1000 * time.time())),
-                    'txid': txid
-                }
-                trade_response = kraken_request('/0/private/QueryOrders', details_data, API_KEY, API_SECRET)
-                print("Respuesta de la API (Detalles de la Orden):", trade_response)
+                # Intentar obtener detalles
+                trade_details = get_order_details(txid, API_KEY, API_SECRET)
 
-                # Obtener comisión
-                trade_details = trade_response['result'][txid]
-                fee = float(trade_details['fee'])
-                qty = float(trade_details['vol'])
-                total_cost = qty * ask_price
+                if trade_details:
+                    fee = float(trade_details['fee'])
+                    qty = float(trade_details['vol'])
+                    total_cost = qty * ask_price
 
-                # Preparar mensaje de correo
-                msg = (
-                    f"Compra realizada:\n"
-                    f"Par: {pair}\n"
-                    f"Cantidad comprada: {qty:.8f} BTC\n"
-                    f"Precio unitario: {ask_price:.2f} EUR\n"
-                    f"Total invertido: {total_cost:.2f} EUR\n"
-                    f"Comisión: {fee:.2f} EUR\n"
-                    f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
-                )
+                    # Preparar mensaje con detalles
+                    msg = (
+                        f"Compra realizada:\n"
+                        f"Par: {pair}\n"
+                        f"Cantidad comprada: {qty:.8f} BTC\n"
+                        f"Precio unitario: {ask_price:.2f} EUR\n"
+                        f"Total invertido: {total_cost:.2f} EUR\n"
+                        f"Comisión: {fee:.2f} EUR\n"
+                        f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
+                    )
+                else:
+                    # Mensaje sin detalles
+                    msg = (
+                        f"Compra realizada:\n"
+                        f"Par: {pair}\n"
+                        f"TXID: {txid}\n"
+                        f"No se pudieron obtener los detalles completos de la orden.\n"
+                        f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
+                    )
+
                 print(msg)
-
-                # Enviar correo con detalles
                 send_email(
                     receiver=GMAIL_USER,
                     subject="DCA-KRAKEN",
@@ -172,7 +191,6 @@ if __name__ == "__main__":
                     pwd=GMAIL_PASSWORD
                 )
                 break  # Salir del bucle si la compra se realiza con éxito
-
             else:
                 print(f"Error en la compra: {order_response['error']}")
                 send_email(
