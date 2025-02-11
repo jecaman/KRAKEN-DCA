@@ -182,10 +182,23 @@ if __name__ == "__main__":
                 send_email(GMAIL_USER, "DCA-KRAKEN", msg, GMAIL_PASSWORD)
                 break
             else:
-                print(f"Error en la compra: {order_response['error']}")
+                error_msg = order_response["error"]
+                msg = (
+                    f"⚠️ ERROR EN LA COMPRA\n\n"
+                    f"Par: {pair}\n"
+                    f"Monto intentado: {to_invest:.2f} EUR\n"
+                    f"Precio unitario estimado: {ask_price:.2f} EUR\n"
+                    f"Error: {error_msg}\n"
+                    f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
+                    break
+                )
+                print(msg)
+                send_email(GMAIL_USER, "DCA-KRAKEN - Estado de Compra", msg, GMAIL_PASSWORD)
                 break
 
     except Exception as e:
-        print(f"Error general: {e}")
+        error_msg = f"⚠️ ERROR GENERAL EN EL BOT\n\nError: {e}\nFecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
+        print(error_msg)
+        send_email(GMAIL_USER, "DCA-KRAKEN - ERROR GENERAL", error_msg, GMAIL_PASSWORD)
     finally:
         remove_lock_file()
