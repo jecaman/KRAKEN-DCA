@@ -190,7 +190,6 @@ if __name__ == "__main__":
                     f"Precio unitario estimado: {ask_price:.2f} EUR\n"
                     f"Error: {error_msg}\n"
                     f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
-                    break
                 )
                 print(msg)
                 send_email(GMAIL_USER, "DCA-KRAKEN - Estado de Compra", msg, GMAIL_PASSWORD)
