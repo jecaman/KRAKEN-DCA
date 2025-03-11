@@ -69,7 +69,7 @@ def get_ask_price(pair):
     return float(ask_price)
 
 # Crear una orden de mercado
-def create_market_order(pair, to_invest, api_key, api_sec):
+def create_limit_order_post_only(pair, to_invest, api_key, api_sec, price_offset=0.001):
     ask_price = get_ask_price(pair)
     min_volume = 0.00005
     min_invest = min_volume * ask_price
@@ -83,12 +83,18 @@ def create_market_order(pair, to_invest, api_key, api_sec):
         print(f"Error: El volumen calculado ({qty} BTC) no cumple con el mínimo permitido ({min_volume} BTC).")
         return {"error": ["Volumen mínimo no alcanzado."]}, ask_price
 
+    # Definir un precio límite ligeramente inferior al precio actual para que sea post-only
+    limit_price = round(ask_price * (1 - price_offset), 2)  # Baja el precio en 0.1% por defecto
+
     data = {
-        'ordertype': 'market',
+        'ordertype': 'limit',
         'type': 'buy',
         'volume': qty,
         'pair': pair,
+        'price': limit_price,  # Orden límite a un precio menor
+        'oflags': 'post',  # Activa el modo post-only
     }
+
     resp = kraken_request('/0/private/AddOrder', data, api_key, api_sec)
     return resp, ask_price
 
@@ -103,7 +109,9 @@ def get_order_details(txid, api_key, api_sec, retries=10, delay=10):
         if trade_response["error"]:
             print(f"Error al consultar la orden: {trade_response['error']}")
         elif txid in trade_response.get("result", {}):
-            return trade_response["result"][txid]
+            order_details = trade_response["result"][txid]
+            order_type = order_details.get("descr", {}).get("ordertype", "desconocido")  # Extraer el tipo de orden
+            return order_details, order_type
 
         print(f"Esperando {delay} segundos antes de volver a intentar...")
         time.sleep(delay)
@@ -159,22 +167,24 @@ if __name__ == "__main__":
                 txid = order_response['result']['txid'][0]
                 print(f"Orden creada con éxito. TXID: {txid}")
 
-                trade_details = get_order_details(txid, API_KEY, API_SECRET)
+                trade_details, order_type = get_order_details(txid, API_KEY, API_SECRET)
 
                 if trade_details:
                     fee = float(trade_details['fee'])
                     qty = float(trade_details['vol'])
                     total_cost = qty * ask_price
 
-                    msg = (
-                        f"Compra realizada:\n"
-                        f"Par: {pair}\n"
-                        f"Cantidad comprada: {qty:.8f} BTC\n"
-                        f"Precio unitario: {ask_price:.2f} EUR\n"
-                        f"Total invertido: {total_cost:.2f} EUR\n"
-                        f"Comisión: {fee:.2f} EUR\n"
-                        f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
-                    )
+                msg = (
+                    f"Compra realizada:\n"
+                    f"Par: {pair}\n"
+                    f"Tipo de orden: {order_type}\n"  # Agregar el tipo de orden
+                    f"Cantidad comprada: {qty:.8f} BTC\n"
+                    f"Precio unitario: {ask_price:.2f} EUR\n"
+                    f"Total invertido: {total_cost:.2f} EUR\n"
+                    f"Comisión: {fee:.2f} EUR\n"
+                    f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
+                )
+
                 else:
                     msg = f"Compra realizada:\nPar: {pair}\nTXID: {txid}\nNo se pudieron obtener los detalles completos de la orden."
 
