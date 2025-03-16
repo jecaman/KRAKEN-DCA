@@ -174,17 +174,16 @@ if __name__ == "__main__":
                     qty = float(trade_details['vol'])
                     total_cost = qty * ask_price
 
-                msg = (
-                    f"Compra realizada:\n"
-                    f"Par: {pair}\n"
-                    f"Tipo de orden: {order_type}\n"  # Agregar el tipo de orden
-                    f"Cantidad comprada: {qty:.8f} BTC\n"
-                    f"Precio unitario: {ask_price:.2f} EUR\n"
-                    f"Total invertido: {total_cost:.2f} EUR\n"
-                    f"Comisión: {fee:.2f} EUR\n"
-                    f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
-                )
-
+                    msg = (
+                        f"Compra realizada:\n"
+                        f"Par: {pair}\n"
+                        f"Tipo de orden: {order_type}\n"
+                        f"Cantidad comprada: {qty:.8f} BTC\n"
+                        f"Precio unitario: {ask_price:.2f} EUR\n"
+                        f"Total invertido: {total_cost:.2f} EUR\n"
+                        f"Comisión: {fee:.2f} EUR\n"
+                        f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
+                    )
                 else:
                     msg = f"Compra realizada:\nPar: {pair}\nTXID: {txid}\nNo se pudieron obtener los detalles completos de la orden."
 
