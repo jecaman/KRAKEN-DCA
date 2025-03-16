@@ -84,7 +84,7 @@ def create_limit_order_post_only(pair, to_invest, api_key, api_sec, price_offset
         return {"error": ["Volumen mínimo no alcanzado."]}, ask_price
 
     # Definir un precio límite ligeramente inferior al precio actual para que sea post-only
-    limit_price = round(ask_price * (1 - price_offset), 2)  # Baja el precio en 0.1% por defecto
+    limit_price = round(ask_price * (1 - price_offset), 1)  # Ajusta a 1 decimal
 
     data = {
         'ordertype': 'limit',
