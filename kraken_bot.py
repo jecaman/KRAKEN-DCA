@@ -158,38 +158,52 @@ if __name__ == "__main__":
         to_invest = 20.83
         print(f"Intentando crear una orden de {to_invest} EUR en el par {pair}...")
 
-        retry_count = 0
-        while retry_count < MAX_RETRIES:
-            order_response, ask_price = create_market_order(pair, to_invest, API_KEY, API_SECRET)
-            print("Respuesta de la API (Orden):", order_response)
+retry_count = 0
+while retry_count < MAX_RETRIES:
+    order_response, ask_price = create_limit_order_post_only(pair, to_invest, API_KEY, API_SECRET)
+    print("Respuesta de la API (Orden):", order_response)
 
-            if not order_response["error"]:
-                txid = order_response['result']['txid'][0]
-                print(f"Orden creada con éxito. TXID: {txid}")
+    if not order_response["error"]:
+        txid = order_response['result']['txid'][0]
+        print(f"Orden creada con éxito. TXID: {txid}")
 
-                trade_details, order_type = get_order_details(txid, API_KEY, API_SECRET)
+        trade_details, order_type = get_order_details(txid, API_KEY, API_SECRET)
 
-                if trade_details:
-                    fee = float(trade_details['fee'])
-                    qty = float(trade_details['vol'])
-                    total_cost = qty * ask_price
+        if trade_details:
+            fee = float(trade_details['fee'])
+            qty = float(trade_details['vol'])
+            total_cost = qty * ask_price
 
-                    msg = (
-                        f"Compra realizada:\n"
-                        f"Par: {pair}\n"
-                        f"Tipo de orden: {order_type}\n"
-                        f"Cantidad comprada: {qty:.8f} BTC\n"
-                        f"Precio unitario: {ask_price:.2f} EUR\n"
-                        f"Total invertido: {total_cost:.2f} EUR\n"
-                        f"Comisión: {fee:.2f} EUR\n"
-                        f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
-                    )
-                else:
-                    msg = f"Compra realizada:\nPar: {pair}\nTXID: {txid}\nNo se pudieron obtener los detalles completos de la orden."
+            msg = (
+                f"Compra realizada:\n"
+                f"Par: {pair}\n"
+                f"Tipo de orden: {order_type}\n"
+                f"Cantidad comprada: {qty:.8f} BTC\n"
+                f"Precio unitario: {ask_price:.2f} EUR\n"
+                f"Total invertido: {total_cost:.2f} EUR\n"
+                f"Comisión: {fee:.2f} EUR\n"
+                f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
+            )
+        else:
+            msg = f"Compra realizada:\nPar: {pair}\nTXID: {txid}\nNo se pudieron obtener los detalles completos de la orden."
 
-                print(msg)
-                send_email(GMAIL_USER, "DCA-KRAKEN", msg, GMAIL_PASSWORD)
-                break
+        print(msg)
+        send_email(GMAIL_USER, "DCA-KRAKEN", msg, GMAIL_PASSWORD)
+        break
+    else:
+        error_msg = order_response["error"]
+        msg = (
+            f"⚠️ ERROR EN LA COMPRA\n\n"
+            f"Par: {pair}\n"
+            f"Monto intentado: {to_invest:.2f} EUR\n"
+            f"Precio unitario estimado: {ask_price:.2f} EUR\n"
+            f"Error: {error_msg}\n"
+            f"Fecha: {time.strftime('%Y-%m-%d %H:%M:%S')}"
+        )
+        print(msg)
+        send_email(GMAIL_USER, "DCA-KRAKEN - Estado de Compra", msg, GMAIL_PASSWORD)
+        break
+        
             else:
                 error_msg = order_response["error"]
                 msg = (
