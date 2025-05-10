@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 API_SECRET = os.getenv("API_SECRET")
-GMAIL_USER = "jesuscamposmanjon@gmail.com"
+GMAIL_USER = os.getenv("GMAIL_USER")
 GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD")
 
 # Nueva variable: Control de ejecución
