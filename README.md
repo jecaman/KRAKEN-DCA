@@ -51,7 +51,7 @@ EXECUTE_BOT=true: activa el bot (¡realiza compras reales!).
 EXECUTE_BOT=false: modo seguro, el bot no se ejecutará.
 to_invest: definido directamente en el script (20.83 EUR) → puedes modificarlo.
 
-##📬 Notificación
+## 📬 Notificación
 Recibirás un correo con los detalles de la orden (o del error) cada vez que se intente una compra.
 La notificación se envía desde tu cuenta Gmail a la dirección configurada en .env.
 
