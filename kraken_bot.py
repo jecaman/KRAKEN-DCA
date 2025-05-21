@@ -155,7 +155,7 @@ if __name__ == "__main__":
         create_lock_file()
 
         pair = "XXBTZEUR"
-        to_invest = 20.83
+        to_invest = 36.66
         print(f"Intentando crear una orden de {to_invest} EUR en el par {pair}...")
 
         retry_count = 0
