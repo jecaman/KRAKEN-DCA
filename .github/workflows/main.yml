@@ -26,4 +26,7 @@ jobs:
           API_KEY: ${{ secrets.API_KEY }}
           API_SECRET: ${{ secrets.API_SECRET }}
           GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
+          GMAIL_USER: ${{ vars.GMAIL_USER }}
+          EXECUTE_BOT: ${{ vars.EXECUTE_BOT }}
         run: python kraken_bot.py
+
