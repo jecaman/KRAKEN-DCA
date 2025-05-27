@@ -147,7 +147,9 @@ def is_locked():
 
 # Ejecutar el bot
 if __name__ == "__main__":
-    print("Running...")
+    print("🚀 Script iniciado")
+    print(f"EXECUTE_BOT: {EXECUTE_BOT}")
+    time.sleep(5)
     try:
         if is_locked():
             print("El bot ya se está ejecutando. Cancelando esta instancia.")
